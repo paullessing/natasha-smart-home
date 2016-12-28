@@ -1,0 +1,17 @@
+## Output files
+dist/
+
+## IDEs
+.idea/
+
+## Package managers
+node_modules/
+
+# Don't ignore typings/custom, but everything else in typings/ (see http://stackoverflow.com/a/5534865)
+!typings/
+typings/*
+!typings/custom
+
+## Temporary files
+npm-debug.log
+npm-debug.log*

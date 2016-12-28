@@ -1,0 +1,38 @@
+{
+  "name": "natasha-smart-home",
+  "version": "0.0.1",
+  "description": "NATurally Awesome System for Home Automation",
+  "main": "dist/app.js",
+  "scripts": {
+    "postinstall": "npm run typings",
+    "typings": "node node_modules/typings/dist/bin install"
+  },
+  "author": "Paul Lessing <paul@paullessing.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cors": "^2.8.1",
+    "express": "^4.14.0",
+    "helmet": "^2.2.0",
+    "inversify": "^3.0.0-rc.2",
+    "method-override": "^2.3.6",
+    "moment": "2.15.1",
+    "morgan": "^1.7.0",
+    "reflect-metadata": "^0.1.9",
+    "request": "^2.74.0",
+    "request-promise-native": "^1.0.3",
+    "sprintf-js": "^1.0.3",
+    "url": "^0.11.0",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.34",
+    "@types/sprintf-js": "0.0.27",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0",
+    "tslint": "^3.15.1",
+    "typings": "^2.1.0"
+  }
+}
