@@ -3,33 +3,33 @@ import {Container, injectable, decorate, interfaces, ContainerModule} from 'inve
 import {FileScanner} from './file-scanner';
 
 /*
-README
+ README
 
-Inversify's syntax is nice, but it requires an inversify.config.ts file with explicit bindings.
-We would rather have bindings resolve automagically; this file provides the implementation for this.
+ Inversify's syntax is nice, but it requires an inversify.config.ts file with explicit bindings.
+ We would rather have bindings resolve automagically; this file provides the implementation for this.
 
-We use Typescript Decorators for this. These decorators all work the same way: When they are run, they add the class
-on which they are declared to an internal list of such classes. We differentiate between classes (simple injection),
-providers (need to inject both the provider and its result), and bindings (which are run but not injected themselves.)
-When getDependencyContainer() is called, this list is evaluated and used to build an Inversify Container containing all
-the bindings gathered from the decorators, by adding each decorator's definitions to a single Container object.
+ We use Typescript Decorators for this. These decorators all work the same way: When they are run, they add the class
+ on which they are declared to an internal list of such classes. We differentiate between classes (simple injection),
+ providers (need to inject both the provider and its result), and bindings (which are run but not injected themselves.)
+ When getDependencyContainer() is called, this list is evaluated and used to build an Inversify Container containing all
+ the bindings gathered from the decorators, by adding each decorator's definitions to a single Container object.
 
-First, we have to do a little dirty hack: File Scanning.
-Because node.js only runs decorators on classes as they are loaded, and this loading only happens when the file is
-required(), we have a problem. Any classes that are not required() from the main app file will never be loaded, so their
-decorators will not be run - which will result in them not being in the container.
-Therefore, we have to run the FileScanner, and require() every file in the project, to ensure that e.g. Providers() that
-are never explicitly called are still evaluated.
+ First, we have to do a little dirty hack: File Scanning.
+ Because node.js only runs decorators on classes as they are loaded, and this loading only happens when the file is
+ required(), we have a problem. Any classes that are not required() from the main app file will never be loaded, so their
+ decorators will not be run - which will result in them not being in the container.
+ Therefore, we have to run the FileScanner, and require() every file in the project, to ensure that e.g. Providers() that
+ are never explicitly called are still evaluated.
 
-Next, we build the container. Each of the decorators adds to one of three lists: classes, providers, and bindings.
-We then iterate over these lists.
-The classes are simple: They are simply added as a bind(classFunction).toSelf().
-The providers are slightly more complex, since we have to first add the provider itself, then evaluate it;
-bind(SYMBOL).toDynamicValue() allows us to evaluate a provider lazily after all other dependencies have resolved, and
-use its $provide() value.
-Finally, bindings are evaluated once, creating a ContainerModule, allowing the Bindings class to add its own bindings,
-and then loading the ContainerModule into the global scope.
-*/
+ Next, we build the container. Each of the decorators adds to one of three lists: classes, providers, and bindings.
+ We then iterate over these lists.
+ The classes are simple: They are simply added as a bind(classFunction).toSelf().
+ The providers are slightly more complex, since we have to first add the provider itself, then evaluate it;
+ bind(SYMBOL).toDynamicValue() allows us to evaluate a provider lazily after all other dependencies have resolved, and
+ use its $provide() value.
+ Finally, bindings are evaluated once, creating a ContainerModule, allowing the Bindings class to add its own bindings,
+ and then loading the ContainerModule into the global scope.
+ */
 
 /**
  * Determines whether an injectable class is a singleton (single instance globally) or transient (fresh instance per injection).
@@ -59,9 +59,7 @@ interface Provider {
   $provide: () => any;
 }
 
-interface BindFunction {
-  (bind: interfaces.Bind): void;
-}
+type BindFunction = (bind: interfaces.Bind) => void;
 
 /**
  * Used for binding @Bindings decorators.
@@ -183,7 +181,7 @@ export function Bindings(): ClassDecorator {
 /**
  * Creates an Inversify Container from all the files annotated with the decorators in this module.
  */
-function getDependencyContainer(directory: string): Container {
+export function createDependencyContainer(directory: string): Container {
   // Black magic happens here.
   // We scan all the files in the given directory to ensure that all classes with decorators have been processed,
   // even if nobody is referencing them directly. This allows us to have files that provide other classes.
@@ -212,6 +210,15 @@ function getDependencyContainer(directory: string): Container {
   return container;
 }
 
+export class Dependencies {
+  public static container: Container;
+
+  public static createContainer(directory: string): Container {
+    Dependencies.container = createDependencyContainer(directory);
+    return Dependencies.container;
+  }
+}
+
 function bindToScope(binding: interfaces.BindingInWhenOnSyntax<any>, scope: Scope): void {
   switch (scope) {
     case Scope.TRANSIENT:
@@ -224,7 +231,3 @@ function bindToScope(binding: interfaces.BindingInWhenOnSyntax<any>, scope: Scop
       throw new Error('Scope ' + scope + ' is not a recognised value');
   }
 }
-
-export {
-  getDependencyContainer
-};

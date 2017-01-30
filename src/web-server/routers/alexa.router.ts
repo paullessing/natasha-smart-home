@@ -1,9 +1,7 @@
 import * as express from 'express';
+import {BodyParsed, Post} from 'express-router-decorators';
 
-import {Service} from './.';
-import {Post} from '../util/routers/methods.decorator';
-import {Response} from '../util/routers/response';
-import {BodyParsed} from '../util/routers/body-parsed.decorator';
+import {Service} from '../../util';
 
 @Service()
 export class AlexaRouter {

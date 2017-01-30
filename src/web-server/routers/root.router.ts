@@ -1,5 +1,7 @@
-import {Service, Use, UseType} from './.';
+import {Use, UseType} from 'express-router-decorators';
+
 import {AlexaRouter} from './alexa.router';
+import {Service} from '../../util';
 
 @Service()
 export class RootRouter {

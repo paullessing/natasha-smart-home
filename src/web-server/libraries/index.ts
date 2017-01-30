@@ -1,8 +1,8 @@
 import * as bodyParser from 'body-parser';
 import * as winston from 'winston';
 
-import {Bindings} from './.';
 import {interfaces} from 'inversify';
+import {Bindings} from '../../util';
 
 export const LIBRARY_TYPES = {
   jsonBodyParser: Symbol('JSON BodyParser'),
