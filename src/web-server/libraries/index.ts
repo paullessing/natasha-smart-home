@@ -1,7 +1,7 @@
 import * as bodyParser from 'body-parser';
 import * as winston from 'winston';
 
-import {Bindings} from '../util';
+import {Bindings} from './.';
 import {interfaces} from 'inversify';
 
 export const LIBRARY_TYPES = {

@@ -15,3 +15,4 @@ typings/*
 ## Temporary files
 npm-debug.log
 npm-debug.log*
+yarn-error.log

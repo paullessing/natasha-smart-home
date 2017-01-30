@@ -1,4 +1,4 @@
-import {Service, Use, UseType} from '../util';
+import {Service, Use, UseType} from './.';
 import {AlexaRouter} from './alexa.router';
 
 @Service()

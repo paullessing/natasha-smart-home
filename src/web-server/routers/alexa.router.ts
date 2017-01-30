@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import {Service} from '../util';
+import {Service} from './.';
 import {Post} from '../util/routers/methods.decorator';
 import {Response} from '../util/routers/response';
 import {BodyParsed} from '../util/routers/body-parsed.decorator';
