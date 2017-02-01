@@ -1,9 +1,15 @@
+import {inject} from 'inversify';
 import * as uuid from 'uuid';
 
-import {Service} from '../../util';
+import {Service, CustomError} from '../../util';
 import {Device, DeviceUuid} from './device.interface';
 import {PersistenceService, PERSISTENCE} from '../persistence/persistence.service';
-import {inject} from 'inversify';
+
+export class DeviceNotFoundError extends CustomError {
+  constructor(public deviceUuid: string) {
+    super(`Device ${deviceUuid} not found`);
+  }
+}
 
 interface DeviceMap {
   [uuid: string]: Device;
@@ -42,7 +48,7 @@ export class DeviceService {
   public toggle(deviceUuid: DeviceUuid): Device {
     const device = this.getDevice(deviceUuid);
     if (!device) {
-      throw new Error(`Not found: ${deviceUuid}`);
+      throw new DeviceNotFoundError(deviceUuid);
     }
 
     const newState = !device.isOn;

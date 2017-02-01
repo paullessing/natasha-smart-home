@@ -6,8 +6,8 @@
   "scripts": {
     "build": "node node_modules/typescript/bin/tsc",
     "build-watch": "node node_modules/typescript/bin/tsc -w",
-    "serve-home": "node node_modules/concurrently/src/main --kill-others --prefix \"[{name}]\" --names \"tsc ,node\" --prefix-colors \"blue,magenta\" \"npm run build-watch\" \"npm run nodemon-home\"",
-    "nodemon-home": "node node_modules/nodemon/bin/nodemon dist/server/server.js --log=debug"
+    "serve": "node node_modules/concurrently/src/main --kill-others --prefix \"[{name}]\" --names \"tsc ,node\" --prefix-colors \"blue,magenta\" \"npm run build-watch\" \"npm run nodemon\"",
+    "nodemon": "node node_modules/nodemon/bin/nodemon dist/server/server.js --log=debug"
   },
   "author": "Paul Lessing <paul@paullessing.com>",
   "license": "MIT",

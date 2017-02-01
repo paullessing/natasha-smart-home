@@ -1,4 +1,4 @@
-import {Get, Response, Use, UseType} from 'express-router-decorators';
+import {Use, UseType} from 'express-router-decorators';
 
 import {Service} from '../../util';
 import {DeviceRouter} from './devices.router';
@@ -19,10 +19,5 @@ export class RootRouter {
   ) {
     this.alexaRouter = alexaRouter;
     this.deviceRouter = deviceRouter;
-  }
-
-  @Get('/')
-  public getRoot(): Promise<Response> {
-    return Response.resolve({ foo: 'bar' });
   }
 }
