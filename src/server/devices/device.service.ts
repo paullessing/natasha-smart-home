@@ -1,18 +1,17 @@
 import {inject} from 'inversify';
-import * as uuid from 'uuid';
 
 import {Service, CustomError} from '../../util';
-import {Device, DeviceUuid} from './device.interface';
-import {PersistenceService, PERSISTENCE} from '../persistence';
+import {Device, DeviceId} from './device.interface';
+import {Persistence, PERSISTENCE} from '../persistence';
 
 export class DeviceNotFoundError extends CustomError {
-  constructor(public deviceUuid: string) {
-    super(`Device ${deviceUuid} not found`);
+  constructor(public deviceId: string) {
+    super(`Device ${deviceId} not found`);
   }
 }
 
 interface DeviceMap {
-  [uuid: string]: Device;
+  [id: string]: Device;
 }
 
 @Service()
@@ -20,19 +19,19 @@ export class DeviceService {
   private devices: DeviceMap;
 
   constructor(
-    @inject(PERSISTENCE) private persistenceService: PersistenceService
+    @inject(PERSISTENCE) private persistence: Persistence
   ) {
-    let devices = this.persistenceService.get<DeviceMap>('devices');
+    let devices = this.persistence.get<DeviceMap>('devices');
     if (!devices) {
-      const deviceUuid = uuid.v4();
+      const deviceId = 'light-lr-sofa';
       devices = {
-        [deviceUuid]: {
+        [deviceId]: {
           name: 'Sofa Light',
-          id: deviceUuid,
+          id: deviceId,
           isOn: false
         }
       };
-      this.persistenceService.put('devices', devices);
+      this.persistence.put('devices', devices);
     }
     this.devices = devices;
   }
@@ -45,15 +44,16 @@ export class DeviceService {
     return this.devices[deviceUuid];
   }
 
-  public toggle(deviceUuid: DeviceUuid): Device {
-    const device = this.getDevice(deviceUuid);
+  public toggle(deviceId: DeviceId): Device {
+    const device = this.getDevice(deviceId);
+    console.log('Device ID', deviceId)
     if (!device) {
-      throw new DeviceNotFoundError(deviceUuid);
+      throw new DeviceNotFoundError(deviceId);
     }
 
     const newState = !device.isOn;
     device.isOn = newState;
-    this.persistenceService.put('devices', this.devices);
+    this.persistence.put('devices', this.devices);
 
     return device;
   }

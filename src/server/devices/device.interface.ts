@@ -1,7 +1,8 @@
-export type DeviceUuid = string;
+export type DeviceId = string;
 
 export interface Device {
   name: string;
-  id: DeviceUuid;
+  id: DeviceId;
   isOn: boolean;
+  location?: string;
 }

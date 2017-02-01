@@ -1,10 +1,10 @@
 import {interfaces} from 'inversify';
 
-import {PersistenceService, PERSISTENCE} from './persistence-service.interface';
+import {Persistence, PERSISTENCE} from './persistence-service.interface';
 import {Bindings, Service} from '../../util';
 
 @Service()
-export class InMemoryPersistence implements PersistenceService {
+export class InMemoryPersistence implements Persistence {
   private data: { [key: string]: any } = {};
 
   public get<T>(key: string): T {

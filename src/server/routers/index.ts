@@ -1,1 +1,1 @@
-export * from './root.router';
+export * from './api.router';

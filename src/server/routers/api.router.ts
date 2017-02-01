@@ -5,7 +5,7 @@ import {DeviceRouter} from './devices.router';
 import {AlexaRouter} from './alexa.router';
 
 @Service()
-export class RootRouter {
+export class ApiRouter {
 
   @Use('/alexa', UseType.ROUTER)
   public alexaRouter: AlexaRouter;
