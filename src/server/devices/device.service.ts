@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 
 import {Service, CustomError} from '../../util';
 import {Device, DeviceUuid} from './device.interface';
-import {PersistenceService, PERSISTENCE} from '../persistence/persistence.service';
+import {PersistenceService, PERSISTENCE} from '../persistence';
 
 export class DeviceNotFoundError extends CustomError {
   constructor(public deviceUuid: string) {

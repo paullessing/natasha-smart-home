@@ -1,13 +1,10 @@
-import {Bindings, Service} from '../../util/inject';
 import {interfaces} from 'inversify';
-export interface PersistenceService {
-  get<T>(key: string): T;
-  put<T>(key: string, value: T): T; // Returns the entity
-  del(key: string): void;
-}
+
+import {PersistenceService, PERSISTENCE} from './persistence-service.interface';
+import {Bindings, Service} from '../../util';
 
 @Service()
-export class InMemoryPersistence implements PersistenceService{
+export class InMemoryPersistence implements PersistenceService {
   private data: { [key: string]: any } = {};
 
   public get<T>(key: string): T {
@@ -23,8 +20,6 @@ export class InMemoryPersistence implements PersistenceService{
     this.data[key] = null;
   }
 }
-
-export const PERSISTENCE = Symbol('Persistence Service');
 
 @Bindings()
 export class PersistenceBindings {

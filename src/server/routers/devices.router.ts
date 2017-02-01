@@ -2,8 +2,7 @@ import * as express from 'express';
 import {Get, Response, Post} from 'express-router-decorators';
 
 import {Service} from '../../util';
-import {DeviceService, DeviceNotFoundError} from '../devices/device.service';
-import {Device} from '../devices/device.interface';
+import {Device, DeviceService, DeviceNotFoundError} from '../devices';
 
 @Service()
 export class DeviceRouter {
