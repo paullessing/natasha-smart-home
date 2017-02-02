@@ -1,6 +1,6 @@
 import {Service} from '../../util';
 import {Device} from '../devices/device.interface';
-import {ApplianceActions, DiscoveredAppliance, DiscoveryResponse, Header} from './alexa-home';
+import {ApplianceActions, DiscoveredAppliance, DiscoveryResponse, Header, HeaderNamespaces} from './alexa-home';
 import * as uuid from 'uuid';
 
 @Service()
@@ -22,8 +22,8 @@ export class AlexaService {
   public createDiscoveryResponse(devices: Device[]): DiscoveryResponse {
     const header = {
       messageId: uuid.v4(),
-      namespace: 'Alexa.ConnectedHome.Discovery',
       name: 'DiscoverAppliancesResponse',
+      namespace: HeaderNamespaces.DISCOVERY,
       payloadVersion: '2'
     };
 
