@@ -61,7 +61,7 @@ export class DeviceService {
 
     const newState = !device.isOn;
     device.isOn = newState;
-    this.persistence.put('devices', this.devicesById);
+    this.persistDevices(); // TODO this needs better handling. Maybe a device config stored separately from states?
 
     return device;
   }
@@ -70,6 +70,10 @@ export class DeviceService {
     this.devicesById[device.id] = device;
     this.devicesByName[device.name.toLowerCase()] = device;
 
+    this.persistDevices();
+  }
+
+  private persistDevices(): void {
     this.persistence.put(PERSISTENCE_KEY, this.getDevices());
   }
 }
