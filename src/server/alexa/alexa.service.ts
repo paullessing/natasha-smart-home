@@ -1,7 +1,8 @@
-import {Service} from '../../util';
-import {Device} from '../devices/device.interface';
-import {ApplianceActions, DiscoveredAppliance, DiscoveryResponse, Header, HeaderNamespaces} from './alexa-home';
 import * as uuid from 'uuid';
+
+import {Service} from '../../util';
+import {Device} from '../devices';
+import {ApplianceActions, Appliance, DiscoveryResponse, Namespaces, ResponseNames} from './interfaces/home-skill';
 
 @Service()
 export class AlexaService {
@@ -22,13 +23,13 @@ export class AlexaService {
   public createDiscoveryResponse(devices: Device[]): DiscoveryResponse {
     const header = {
       messageId: uuid.v4(),
-      name: 'DiscoverAppliancesResponse',
-      namespace: HeaderNamespaces.DISCOVERY,
+      name: ResponseNames.DISCOVER_APPLIANCES,
+      namespace: Namespaces.DISCOVERY,
       payloadVersion: '2'
     };
 
     const payload = {
-      discoveredAppliances: devices.map((device: Device) => this.convertDevice(device))
+      discoveredAppliances: devices.map((device: Device) => this.convertDeviceToAppliance(device))
     };
 
     return { header, payload };
@@ -43,14 +44,14 @@ export class AlexaService {
     };
   }
 
-  private convertDevice(device: Device): DiscoveredAppliance {
+  private convertDeviceToAppliance(device: Device): Appliance {
     return {
       applianceId: device.id,
       manufacturerName: 'NATASHA',
       modelName: device.name,
       version: '1.0',
       friendlyName: device.name,
-      friendlyDescription: device.name, // TODO
+      friendlyDescription: 'Virtual Appliance', // TODO
       isReachable:  true,
       actions: [
         ApplianceActions.TURN_ON,

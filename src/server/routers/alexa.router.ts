@@ -44,8 +44,11 @@ export class AlexaRouter {
     }
   }
 
-  @Get('/home/discovery')
-  public homeDiscovery(): Promise<Response> {
+  @BodyParsed()
+  @Post('/home/discovery')
+  public homeDiscovery(req: express.Request): Promise<Response> {
+    console.log('Body', req.body);
+
     const devices = this.deviceService.getDevices();
     const result = this.alexaService.createDiscoveryResponse(devices);
     return Response.resolve(result);

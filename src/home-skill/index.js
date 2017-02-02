@@ -1,8 +1,7 @@
-var http = require('https');
+var nodeFetch = require('node-fetch');
 var querystring = require('querystring');
 
-var REMOTE_CLOUD_HOSTNAME = 'home.paullessing.com';
-var REMOTE_CLOUD_BASE_PATH = '/api/alexa/home';
+var REMOTE_CLOUD_URL = 'https://home.paullessing.com/api/alexa/home';
 
 /**
  * Main entry point.
@@ -32,11 +31,33 @@ function entryPoint(event, context) {
 function handleDiscovery(event, context) {
   log('Event', event);
 
-  http.get({
-    host: REMOTE_CLOUD_HOSTNAME,
-    path: REMOTE_CLOUD_BASE_PATH + '/discovery'
-  }, handleHttpResponse(context.succeed)
-  ).on('error', handleHttpError(context));
+  var data = JSON.stringify(event);
+
+  nodeFetch(REMOTE_CLOUD_URL + '/discovery', {
+    method: 'POST',
+    body: data,
+    headers: {'Content-Type': 'application/json' },
+    timeout: 2000
+  })
+    .then(function(res) {
+      return res.json();
+    }).then(function(json) {
+      log('Fetch result', json);
+      context.succeed(json);
+    }).catch(function(err) {
+      log('NATASHA could not connect', err);
+      context.succeed({
+        header: {
+          messageId: '0',
+          name: 'DiscoverAppliancesResponse',
+          namespace: 'Alexa.ConnectedHome.Discovery',
+          payloadVersion: '2'
+        },
+        payload: {
+          discoveredAppliances: []
+        }
+      });
+    });
 }
 
 /**
@@ -162,28 +183,6 @@ function generateControlError(name, code, description) {
   };
 
   return result;
-}
-
-function handleHttpResponse(callback) {
-  return function (response) {
-    // Continuously update stream with data
-    var body = '';
-    response.on('data', function (d) {
-      body += d;
-    });
-    response.on('end', function () {
-      // Data reception is done, do whatever with it!
-      var parsed = JSON.parse(body);
-      callback(parsed);
-    });
-  };
-}
-
-function handleHttpError(context) {
-  return function(error) {
-    log('Error from HTTP', error);
-    context.fail(error);
-  };
 }
 
 exports.handler = entryPoint;
