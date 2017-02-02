@@ -613,8 +613,8 @@ expand-range@^1.8.1:
     fill-range "^2.1.0"
 
 express-router-decorators@paullessing/express-router-decorators:
-  version "1.0.0"
-  resolved "https://codeload.github.com/paullessing/express-router-decorators/tar.gz/ba23c51df308c862728cb638c0d84c18e5c9e2a7"
+  version "1.0.1"
+  resolved "https://codeload.github.com/paullessing/express-router-decorators/tar.gz/579ca164601cba2a6565094f2b3d5bdff4d9e702"
   dependencies:
     body-parser "1.15.2"
     express "4.14.0"
