@@ -1,108 +1,42 @@
-/**
- * This sample demonstrates a simple driver  built against the Alexa Lighting Api.
- * For additional details, please refer to the Alexa Lighting API developer documentation
- * https://developer.amazon.com/public/binaries/content/assets/html/alexa-lighting-api.html
- */
-var http = require('http');
-var REMOTE_CLOUD_BASE_PATH = '/';
+var http = require('https');
+var querystring = require('querystring');
+
 var REMOTE_CLOUD_HOSTNAME = 'home.paullessing.com';
+var REMOTE_CLOUD_BASE_PATH = '/api/alexa/home';
 
 /**
  * Main entry point.
  * Incoming events from Alexa Lighting APIs are processed via this method.
  */
-exports.handler = function(event, context) {
+function entryPoint(event, context) {
 
   log('Input', event);
 
   switch (event.header.namespace) {
 
-    /**
-     * The namespace of "Discovery" indicates a request is being made to the lambda for
-     * discovering all appliances associated with the customer's appliance cloud account.
-     * can use the accessToken that is made available as part of the payload to determine
-     * the customer.
-     */
-    case 'Discovery':
+    case 'Alexa.ConnectedHome.Discovery':
       handleDiscovery(event, context);
       break;
 
-    /**
-     * The namespace of "Control" indicates a request is being made to us to turn a
-     * given device on, off or brighten. This message comes with the "appliance"
-     * parameter which indicates the appliance that needs to be acted on.
-     */
-    case 'Control':
+    case 'Alexa.ConnectedHome.Control':
       handleControl(event, context);
       break;
 
-    /**
-     * We received an unexpected message
-     */
     default:
       log('Err', 'No supported namespace: ' + event.header.namespace);
       context.fail('Something went wrong');
       break;
   }
-};
+}
 
-/**
- * This method is invoked when we receive a "Discovery" message from Alexa Smart Home Skill.
- * We are expected to respond back with a list of appliances that we have discovered for a given
- * customer.
- */
-function handleDiscovery(accessToken, context) {
+function handleDiscovery(event, context) {
+  log('Event', event);
 
-  /**
-   * Crafting the response header
-   */
-  var headers = {
-    namespace: 'SampleDiscovery',
-    name: 'SampleDiscoverAppliancesResponse',
-    payloadVersion: '1'
-  };
-
-  /**
-   * Response body will be an array of discovered devices.
-   */
-  var appliances = [];
-
-  var applianceDiscovered = {
-    applianceId: 'thing-1',
-    manufacturerName: 'SmartThings',
-    modelName: 'ST01',
-    version: 'VER01',
-    friendlyName: 'The Thing',
-    friendlyDescription: 'some silly thing',
-    isReachable: true,
-    additionalApplianceDetails: {
-      /**
-       * OPTIONAL:
-       * We can use this to persist any appliance specific metadata.
-       * This information will be returned back to the driver when user requests
-       * action on this appliance.
-       */
-      'fullApplianceId': 'thing-1'
-    }
-  };
-  appliances.push(applianceDiscovered);
-
-  /**
-   * Craft the final response back to Alexa Smart Home Skill. This will include all the
-   * discoverd appliances.
-   */
-  var payloads = {
-    discoveredAppliances: appliances
-  };
-  var result = {
-    header: headers,
-    payload: payloads
-  };
-
-  log('Discovery', accessToken);
-  log('Discovery', result);
-
-  context.succeed(result);
+  http.get({
+    host: REMOTE_CLOUD_HOSTNAME,
+    path: REMOTE_CLOUD_BASE_PATH + '/discovery'
+  }, handleHttpResponse(context.succeed)
+  ).on('error', handleHttpError(context));
 }
 
 /**
@@ -115,7 +49,7 @@ function handleControl(event, context) {
    * Fail the invocation if the header is unexpected. This example only demonstrates
    * turn on / turn off, hence we are filtering on anything that is not SwitchOnOffRequest.
    */
-  if (event.header.namespace != 'Control' || event.header.name != 'SwitchOnOffRequest') {
+  if (event.header.namespace !== 'Control' || event.header.name !== 'SwitchOnOffRequest') {
     context.fail(generateControlError('SwitchOnOffRequest', 'UNSUPPORTED_OPERATION', 'Unrecognized operation'));
   }
 
@@ -229,3 +163,27 @@ function generateControlError(name, code, description) {
 
   return result;
 }
+
+function handleHttpResponse(callback) {
+  return function (response) {
+    // Continuously update stream with data
+    var body = '';
+    response.on('data', function (d) {
+      body += d;
+    });
+    response.on('end', function () {
+      // Data reception is done, do whatever with it!
+      var parsed = JSON.parse(body);
+      callback(parsed);
+    });
+  };
+}
+
+function handleHttpError(context) {
+  return function(error) {
+    log('Error from HTTP', error);
+    context.fail(error);
+  };
+}
+
+exports.handler = entryPoint;
