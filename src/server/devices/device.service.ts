@@ -11,50 +11,65 @@ export class DeviceNotFoundError extends CustomError {
 }
 
 interface DeviceMap {
-  [id: string]: Device;
+  [key: string]: Device;
 }
+
+const PERSISTENCE_KEY = 'devices';
 
 @Service()
 export class DeviceService {
-  private devices: DeviceMap;
+  private devicesById: DeviceMap;
+  private devicesByName: DeviceMap;
 
   constructor(
     @inject(PERSISTENCE) private persistence: Persistence
   ) {
-    let devices = this.persistence.get<DeviceMap>('devices');
-    if (!devices) {
-      const deviceId = 'light-lr-sofa';
-      devices = {
-        [deviceId]: {
-          name: 'Sofa Light',
-          id: deviceId,
-          isOn: false
-        }
-      };
-      this.persistence.put('devices', devices);
+    this.devicesById = {};
+    this.devicesByName = {};
+
+    const devices = this.persistence.get<Device[]>(PERSISTENCE_KEY);
+    if (devices) {
+      for (const device of devices) {
+        this.addDevice(device);
+      }
+    } else { // TODO this is placeholder code until I use real persistence
+      this.addDevice({
+        name: 'Sofa Light',
+        id: 'light-lr-sofa',
+        isOn: false
+      });
     }
-    this.devices = devices;
   }
 
   public getDevices(): Device[] {
-    return Object.keys(this.devices).map(key => this.devices[key]);
+    return Object.keys(this.devicesById).map(key => this.devicesById[key]);
   }
 
-  public getDevice(deviceUuid: string): Device {
-    return this.devices[deviceUuid];
+  public getDevice(deviceId: string): Device | null {
+    return this.devicesById[deviceId] || null;
+  }
+
+  public getDeviceByName(deviceName: string): Device | null {
+    return this.devicesByName[deviceName.toLowerCase()] || null;
   }
 
   public toggle(deviceId: DeviceId): Device {
     const device = this.getDevice(deviceId);
-    console.log('Device ID', deviceId)
     if (!device) {
       throw new DeviceNotFoundError(deviceId);
     }
 
     const newState = !device.isOn;
     device.isOn = newState;
-    this.persistence.put('devices', this.devices);
+    this.persistence.put('devices', this.devicesById);
 
     return device;
+  }
+
+  private addDevice(device: Device): void {
+    this.devicesById[device.id] = device;
+    this.devicesByName[device.name.toLowerCase()] = device;
+
+    this.persistence.put(PERSISTENCE_KEY, this.getDevices());
   }
 }

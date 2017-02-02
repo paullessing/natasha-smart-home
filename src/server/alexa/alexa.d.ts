@@ -54,25 +54,29 @@ declare namespace Alexa {
       locale: string;
     };
   }
-  
-  interface IntentRequest extends StandardRequest {
+
+  interface IntentRequest<T> extends StandardRequest {
     request: {
       type: 'IntentRequest';
       requestId: string;
       timestamp: string;
       locale: string;
-      intent: {
-        name: string;
-        slots: {
-          [slotName: string]: {
-            name: string;
-            value: string;
-          };
-        };
-      };
+      intent: Intent<T>;
     };
   }
-  
+
+  interface Intent<T> {
+    name: string;
+    slots: T & {
+      [slotName: string]: Slot;
+    };
+  }
+
+  interface Slot {
+    name: string;
+    value: string;
+  }
+
   interface SessionEndedRequest extends StandardRequest {
     request: {
       type: 'SessionEndedRequest';
