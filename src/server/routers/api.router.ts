@@ -1,4 +1,4 @@
-import {Use, UseType} from 'express-router-decorators';
+import {Use, UseType, Get, Response} from 'express-router-decorators';
 
 import {Service} from '../../util';
 import {DeviceRouter} from './devices.router';
@@ -19,5 +19,10 @@ export class ApiRouter {
   ) {
     this.alexaRouter = alexaRouter;
     this.deviceRouter = deviceRouter;
+  }
+
+  @Get('/health')
+  public getHealth(): Promise<Response> {
+    return Response.resolve('OK');
   }
 }

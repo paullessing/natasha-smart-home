@@ -1,5 +1,5 @@
 import * as express from 'express';
-import {BodyParsed, Post, Response} from 'express-router-decorators';
+import {BodyParsed, Post, Response, Get} from 'express-router-decorators';
 
 import {Service} from '../../util';
 import {DeviceService} from '../devices';
@@ -42,6 +42,13 @@ export class AlexaRouter {
     } else {
       return Response.reject(400);
     }
+  }
+
+  @Get('/home/discovery')
+  public homeDiscovery(): Promise<Response> {
+    const devices = this.deviceService.getDevices();
+    const result = this.alexaService.createDiscoveryResponse(devices);
+    return Response.resolve(result);
   }
 
   private selectResponse(intentName: string, itemName: string) {
