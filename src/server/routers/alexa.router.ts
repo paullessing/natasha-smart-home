@@ -1,9 +1,10 @@
 import * as express from 'express';
-import {BodyParsed, Post, Response, Get} from 'express-router-decorators';
+import {BodyParsed, Post, Response} from 'express-router-decorators';
 
 import {Service} from '../../util';
 import {DeviceService} from '../devices';
 import {AlexaService} from '../alexa';
+import {Authenticated} from '../auth';
 
 enum DeviceState {
   ON, OFF
@@ -11,8 +12,6 @@ enum DeviceState {
 
 @Service()
 export class AlexaRouter {
-
-  private itemStates: any = {};
 
   constructor(
     private deviceService: DeviceService,
@@ -45,10 +44,9 @@ export class AlexaRouter {
   }
 
   @BodyParsed()
+  @Authenticated()
   @Post('/home/discovery')
   public homeDiscovery(req: express.Request): Promise<Response> {
-    console.log('Body', req.body);
-
     const devices = this.deviceService.getDevices();
     const result = this.alexaService.createDiscoveryResponse(devices);
     return Response.resolve(result);
