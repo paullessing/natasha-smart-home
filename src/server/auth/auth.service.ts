@@ -53,14 +53,39 @@ export class AuthService {
       return false;
     }
   }
+
+  public isRequestAuthenticated(req: express.Request): boolean {
+    const token = this.getTokenFromRequest(req);
+    console.log('Token', token);
+    if (!token) {
+      return false;
+    }
+    return this.verifyToken(token);
+  }
+
+  private getTokenFromRequest(req: express.Request): string | null {
+    console.log(req.body, req.headers);
+    const authHeader = req.headers['authorization'];
+    console.log('authHeader', authHeader);
+    if (authHeader && authHeader.length && authHeader.indexOf('Bearer ') === 0) {
+      return authHeader.substr('Bearer '.length);
+    }
+    const payloadAccessToken = req.body && req.body.payload && req.body.payload.accessToken;
+    console.log('payloadAccessToken', payloadAccessToken);
+    if (payloadAccessToken) {
+      return payloadAccessToken;
+    }
+    const userAccessToken = req.body && req.body.context && req.body.context.System && req.body.context.System.user && req.body.context.System.user.accessToken;
+    console.log('userAccessToken', userAccessToken);
+    if (userAccessToken) {
+      return userAccessToken;
+    }
+    return null;
+  }
 }
 
 export function Authenticated(): MethodDecorator & PropertyDecorator {
   return AuthenticatedWith((req: express.Request) => {
-    if (req.body && req.body.payload && req.body.payload.accessToken) {
-      return AuthService.getInstance().verifyToken(req.body.payload.accessToken);
-    } else {
-      return false;
-    }
+    return AuthService.getInstance().isRequestAuthenticated(req);
   });
 }

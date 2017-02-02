@@ -1,14 +1,24 @@
 import {Header} from './header.interface';
-import {Appliance} from './appliance.interface';
-import {RequestNames} from './request-name.enum';
+import {AdditionalApplianceDetails} from './appliance.interface';
+
+interface BasePayload {
+  accessToken: string; // OAuth token
+}
 
 export interface Request {
   header: Header;
-  payload: {};
+  payload: BasePayload;
 }
 
-export interface DiscoverAppliancesRequest extends Request {
-  payload: {
-    accessToken: string; // OAuth token
+export interface DiscoverAppliancesRequest extends Request {}
+
+export interface TurnOnRequest extends Request {
+  payload: BasePayload & {
+    appliance: {
+      applianceId: string;
+      additionalApplianceDetails: AdditionalApplianceDetails;
+    }
   }
 }
+
+export type TurnOffRequest = TurnOnRequest;

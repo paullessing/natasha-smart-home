@@ -1,5 +1,9 @@
 import {ApplianceAction} from './appliance-actions.enum';
 
+export interface AdditionalApplianceDetails {
+  [key: string]: string;
+}
+
 export interface Appliance {
   /**
    *  A device identifier.
@@ -54,5 +58,5 @@ export interface Appliance {
    * The contents of this property cannot exceed 5000 bytes.
    * Also, the Smart Home Skill API does not understand or use this data.
    */
-  additionalApplianceDetails?: { [key: string]: string };
+  additionalApplianceDetails: AdditionalApplianceDetails;
 }

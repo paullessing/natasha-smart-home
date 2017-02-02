@@ -18,8 +18,9 @@ export class AlexaRouter {
     private alexaService: AlexaService
   ) {}
 
-  @Post('/custom')
   @BodyParsed()
+  @Authenticated()
+  @Post('/custom')
   public postRequest(req: express.Request): Promise<Response> {
     console.log('Alexa\n======');
     console.log(req.method);
