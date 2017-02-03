@@ -1,3 +1,5 @@
+import {Command} from './command.interface';
+
 export type DeviceId = string;
 
 export interface Device {
@@ -5,4 +7,9 @@ export interface Device {
   id: DeviceId;
   isOn: boolean;
   location?: string;
+  commands: {
+    on?: Command;
+    off?: Command;
+    toggle?: Command;
+  }
 }

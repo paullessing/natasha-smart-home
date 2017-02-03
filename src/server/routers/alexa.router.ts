@@ -10,7 +10,7 @@ export class AlexaRouter {
   @Use('/home', UseType.ROUTER)
   public homeRouter: AlexaHomeSkillRouter;
 
-  @Use('/home', UseType.ROUTER)
+  @Use('/custom', UseType.ROUTER)
   public customRouter: AlexaCustomSkillRouter;
 
   constructor(

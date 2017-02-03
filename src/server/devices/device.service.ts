@@ -3,6 +3,9 @@ import {inject} from 'inversify';
 import {Service, CustomError} from '../../util';
 import {Device, DeviceId} from './device.interface';
 import {Persistence, PERSISTENCE} from '../persistence';
+import {CommandTypes} from './command-types.enum';
+import {MqttCommand} from './command.interface';
+import {CommunicationService} from '../communication';
 
 export class DeviceNotFoundError extends CustomError {
   constructor(public deviceId: string) {
@@ -22,7 +25,8 @@ export class DeviceService {
   private devicesByName: DeviceMap;
 
   constructor(
-    @inject(PERSISTENCE) private persistence: Persistence
+    @inject(PERSISTENCE) private persistence: Persistence,
+    private commService: CommunicationService
   ) {
     this.devicesById = {};
     this.devicesByName = {};
@@ -36,7 +40,19 @@ export class DeviceService {
       this.addDevice({
         name: 'Sofa Light',
         id: 'light-lr-sofa',
-        isOn: false
+        isOn: false,
+        commands: {
+          on: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '4542804'
+          } as MqttCommand,
+          off: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '4542807'
+          } as MqttCommand
+        }
       });
     }
   }
@@ -62,6 +78,12 @@ export class DeviceService {
     const newState = !device.isOn;
     device.isOn = newState;
     this.persistDevices(); // TODO this needs better handling. Maybe a device config stored separately from states?
+
+    if (newState) {
+      this.commService.turnDeviceOn(device);
+    } else {
+      this.commService.turnDeviceOff(device);
+    }
 
     return device;
   }

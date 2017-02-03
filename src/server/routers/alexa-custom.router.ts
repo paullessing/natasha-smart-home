@@ -20,15 +20,15 @@ export class AlexaCustomSkillRouter {
   ) {}
 
   @BodyParsed()
-  @Authenticated()
+  // @Authenticated()
   @Post('/')
   public postRequest(req: express.Request): Promise<Response> {
-    console.log('Alexa\n======');
-    console.log(req.method);
-    console.log('======');
-    Object.keys(req.headers).forEach(header => console.log(`${header} : ${req.headers[header]}`));
-    console.log('======');
-    console.log(req.body);
+    // console.log('Alexa\n======');
+    // console.log(req.method);
+    // console.log('======');
+    // Object.keys(req.headers).forEach(header => console.log(`${header} : ${req.headers[header]}`));
+    // console.log('======');
+    // console.log(req.body);
 
     if (req.body && req.body.request && req.body.request.type === 'IntentRequest' && req.body.request.intent) {
       const intent: Intent<{ item: Slot }> = req.body.request.intent;
@@ -70,6 +70,7 @@ export class AlexaCustomSkillRouter {
 
   private handleToggleRequest(itemName: string, targetState: DeviceState): CustomSkillResponse {
     const turnOn = (targetState === DeviceState.ON);
+    console.log('Device name', itemName);
     const device = this.deviceService.getDeviceByName(itemName);
     if (!device) {
       return this.alexaService.createPlainSpeechResponse('Device not found.');
