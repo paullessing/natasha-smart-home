@@ -3,6 +3,18 @@ var querystring = require('querystring');
 
 var REMOTE_CLOUD_URL = 'https://home.paullessing.com/api/alexa/home';
 
+var EMPTY_DISCOVERY = {
+  header: {
+    messageId: '0',
+    name: 'DiscoverAppliancesResponse',
+    namespace: 'Alexa.ConnectedHome.Discovery',
+    payloadVersion: '2'
+  },
+  payload: {
+    discoveredAppliances: []
+  }
+};
+
 /**
  * Main entry point.
  * Incoming events from Alexa Lighting APIs are processed via this method.
@@ -14,11 +26,21 @@ function entryPoint(event, context) {
   switch (event.header.namespace) {
 
     case 'Alexa.ConnectedHome.Discovery':
-      handleDiscovery(event, context);
+      handleEvent(event, context)
+        .catch(function(err) {
+          log('NATASHA could not connect', err);
+          context.succeed(EMPTY_DISCOVERY);
+        });
       break;
 
     case 'Alexa.ConnectedHome.Control':
-      handleControl(event, context);
+      handleEvent(event, context)
+        .catch(function(err) {
+          log('NATASHA could not connect', err);
+          context.fail(generateControlError(
+            'BridgeOfflineError', 'BRIDGE_OFFLINE_ERROR', 'Cannot connect to server'
+          ));
+        });
       break;
 
     default:
@@ -28,12 +50,12 @@ function entryPoint(event, context) {
   }
 }
 
-function handleDiscovery(event, context) {
+function handleEvent(event, context) {
   log('Event', event);
 
   var data = JSON.stringify(event);
 
-  nodeFetch(REMOTE_CLOUD_URL + '/discovery', {
+  return nodeFetch(REMOTE_CLOUD_URL, {
     method: 'POST',
     body: data,
     headers: {'Content-Type': 'application/json' },
@@ -44,19 +66,6 @@ function handleDiscovery(event, context) {
     }).then(function(json) {
       log('Fetch result', json);
       context.succeed(json);
-    }).catch(function(err) {
-      log('NATASHA could not connect', err);
-      context.succeed({
-        header: {
-          messageId: '0',
-          name: 'DiscoverAppliancesResponse',
-          namespace: 'Alexa.ConnectedHome.Discovery',
-          payloadVersion: '2'
-        },
-        payload: {
-          discoveredAppliances: []
-        }
-      });
     });
 }
 
@@ -165,9 +174,10 @@ function log(title, msg) {
 
 function generateControlError(name, code, description) {
   var headers = {
-    namespace: 'Control',
+    messageId: 0,
+    namespace: 'Alexa.ConnectedHome.Control',
     name: name,
-    payloadVersion: '1'
+    payloadVersion: '2'
   };
 
   var payload = {

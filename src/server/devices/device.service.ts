@@ -45,12 +45,12 @@ export class DeviceService {
           on: {
             type: CommandTypes.MQTT,
             topic: '/RF_Bridge_in/',
-            message: '4542804'
+            message: '4542807'
           } as MqttCommand,
           off: {
             type: CommandTypes.MQTT,
             topic: '/RF_Bridge_in/',
-            message: '4542807'
+            message: '4542804'
           } as MqttCommand
         }
       });
@@ -69,22 +69,26 @@ export class DeviceService {
     return this.devicesByName[deviceName.toLowerCase()] || null;
   }
 
-  public toggle(deviceId: DeviceId): Device {
+  public setState(deviceId: DeviceId, turnOn: boolean): Device {
+    const device = this.getDeviceOrThrow(deviceId);
+
+    if (turnOn === device.isOn) {
+      return device;
+    }
+
+    device.isOn = turnOn;
+    console.log('2 Turned on', turnOn);
+    this.persistDevices();
+    this.commService.turnDeviceOnOrOff(device, turnOn);
+
+    return device;
+  }
+
+  private getDeviceOrThrow(deviceId: DeviceId): Device {
     const device = this.getDevice(deviceId);
     if (!device) {
       throw new DeviceNotFoundError(deviceId);
     }
-
-    const newState = !device.isOn;
-    device.isOn = newState;
-    this.persistDevices(); // TODO this needs better handling. Maybe a device config stored separately from states?
-
-    if (newState) {
-      this.commService.turnDeviceOn(device);
-    } else {
-      this.commService.turnDeviceOff(device);
-    }
-
     return device;
   }
 

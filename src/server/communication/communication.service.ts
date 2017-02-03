@@ -30,12 +30,14 @@ export class CommunicationService {
     });
   }
 
-  public turnDeviceOn(device: Device): void {
-    this.executeCommand(device.commands.on);
-  }
-
-  public turnDeviceOff(device: Device): void {
-    this.executeCommand(device.commands.off);
+  public turnDeviceOnOrOff(device: Device, turnOn: boolean) {
+    if (turnOn) {
+      console.log('3 Executing on');
+      this.executeCommand(device.commands.on);
+    } else {
+      console.log('3 Executing off');
+      this.executeCommand(device.commands.off);
+    }
   }
 
   private executeCommand(command?: Command): void {

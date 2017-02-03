@@ -1,8 +1,16 @@
 import * as uuid from 'uuid';
-
 import {Service} from '../../util';
 import {Device} from '../devices';
-import {ApplianceActions, Appliance, DiscoveryResponse, Namespaces, ResponseNames} from './interfaces/home-skill';
+import {
+  ApplianceActions,
+  Appliance,
+  DiscoveryResponse,
+  Namespaces,
+  Response,
+  ResponseName,
+  ResponseNames,
+  ErrorResponseName
+} from './interfaces/home-skill';
 
 @Service()
 export class AlexaHomeSkillService {
@@ -18,6 +26,30 @@ export class AlexaHomeSkillService {
     const payload = {
       discoveredAppliances: devices.map((device: Device) => this.convertDeviceToAppliance(device))
     };
+
+    return { header, payload };
+  }
+
+  public createSuccessResponse(name: ResponseName): Response {
+    const header = {
+      messageId: uuid.v4(),
+      name: name,
+      namespace: Namespaces.CONTROL,
+      payloadVersion: '2'
+    };
+    const payload = {};
+
+    return { header, payload };
+  }
+
+  public createErrorResponse(error: ErrorResponseName): Response {
+    const header = {
+      messageId: uuid.v4(),
+      name: error,
+      namespace: Namespaces.CONTROL,
+      payloadVersion: '2'
+    };
+    const payload = {};
 
     return { header, payload };
   }

@@ -56,7 +56,6 @@ export class AuthService {
 
   public isRequestAuthenticated(req: express.Request): boolean {
     const token = this.getTokenFromRequest(req);
-    console.log('Token', token);
     if (!token) {
       return false;
     }
@@ -64,19 +63,15 @@ export class AuthService {
   }
 
   private getTokenFromRequest(req: express.Request): string | null {
-    console.log(req.body, req.headers);
     const authHeader = req.headers['authorization'];
-    console.log('authHeader', authHeader);
     if (authHeader && authHeader.length && authHeader.indexOf('Bearer ') === 0) {
       return authHeader.substr('Bearer '.length);
     }
     const payloadAccessToken = req.body && req.body.payload && req.body.payload.accessToken;
-    console.log('payloadAccessToken', payloadAccessToken);
     if (payloadAccessToken) {
       return payloadAccessToken;
     }
     const userAccessToken = req.body && req.body.context && req.body.context.System && req.body.context.System.user && req.body.context.System.user.accessToken;
-    console.log('userAccessToken', userAccessToken);
     if (userAccessToken) {
       return userAccessToken;
     }

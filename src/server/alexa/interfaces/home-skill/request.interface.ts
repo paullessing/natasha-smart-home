@@ -12,7 +12,7 @@ export interface Request {
 
 export interface DiscoverAppliancesRequest extends Request {}
 
-export interface TurnOnRequest extends Request {
+export interface TurnOnOffRequest extends Request {
   payload: BasePayload & {
     appliance: {
       applianceId: string;
@@ -20,5 +20,3 @@ export interface TurnOnRequest extends Request {
     }
   }
 }
-
-export type TurnOffRequest = TurnOnRequest;

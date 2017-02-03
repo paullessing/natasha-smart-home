@@ -25,7 +25,13 @@ export class DeviceRouter {
 
   @Post('/:deviceId/toggle')
   public toggleDevice(req: express.Request): Promise<Response> {
-    return Promise.resolve(this.deviceService.toggle(req.params['deviceId']))
+    return Promise.resolve()
+      .then(() => {
+        return this.deviceService.getDevice(req.params['deviceId']);
+      })
+      .then((device: Device) => {
+        return this.deviceService.setState(device.id, !device.isOn);
+      })
       .then((device: Device) => Response.success(device))
       .catch((err: any) => this.handleDeviceNotExistsError(err));
   }

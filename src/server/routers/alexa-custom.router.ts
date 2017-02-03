@@ -20,7 +20,7 @@ export class AlexaCustomSkillRouter {
   ) {}
 
   @BodyParsed()
-  // @Authenticated()
+  @Authenticated()
   @Post('/')
   public postRequest(req: express.Request): Promise<Response> {
     // console.log('Alexa\n======');
@@ -77,7 +77,7 @@ export class AlexaCustomSkillRouter {
     } else if (device.isOn === turnOn) {
       return this.alexaService.createPlainSpeechResponse(`That was already ${turnOn ? 'on' : 'off'}.`);
     }
-    this.deviceService.toggle(device.id);
+    this.deviceService.setState(device.id, !device.isOn);
     return this.alexaService.createPlainSpeechResponse(`OK, I've turned the ${itemName} ${turnOn ? 'on' : 'off'}.`);
   }
 }
