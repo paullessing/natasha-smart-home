@@ -5,20 +5,7 @@ import {Device} from '../devices';
 import {ApplianceActions, Appliance, DiscoveryResponse, Namespaces, ResponseNames} from './interfaces/home-skill';
 
 @Service()
-export class AlexaService {
-  public createPlainSpeechResponse(text: string): Alexa.Response {
-    return this.wrapSpeech({
-      type: 'PlainText',
-      text
-    });
-  }
-
-  public createSsmlSpeechResponse(text: string): Alexa.Response {
-    return this.wrapSpeech({
-      type: 'SSML',
-      ssml: text
-    });
-  }
+export class AlexaHomeSkillService {
 
   public createDiscoveryResponse(devices: Device[]): DiscoveryResponse {
     const header = {
@@ -33,15 +20,6 @@ export class AlexaService {
     };
 
     return { header, payload };
-  }
-
-  private wrapSpeech(speech: Alexa.Speech): Alexa.Response {
-    return {
-      version: '1.0',
-      response: {
-        outputSpeech: speech
-      }
-    };
   }
 
   private convertDeviceToAppliance(device: Device): Appliance {

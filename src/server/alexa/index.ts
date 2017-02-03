@@ -1,1 +1,2 @@
-export * from './alexa.service';
+export * from './alexa-custom-skill.service';
+export * from './alexa-home-skill.service';
