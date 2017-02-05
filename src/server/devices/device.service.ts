@@ -1,11 +1,9 @@
 import {inject} from 'inversify';
 
 import {Service, CustomError} from '../../util';
-import {Device, DeviceId} from './device.interface';
 import {Persistence, PERSISTENCE} from '../persistence';
-import {CommandTypes} from './command-types.enum';
-import {MqttCommand} from './command.interface';
 import {CommunicationService} from '../communication';
+import {Device, DeviceId} from './device.interface';
 
 export class DeviceNotFoundError extends CustomError {
   constructor(public deviceId: string) {
@@ -31,64 +29,14 @@ export class DeviceService {
     this.devicesById = {};
     this.devicesByName = {};
 
-    const devices = this.persistence.get<Device[]>(PERSISTENCE_KEY);
-    if (devices) {
-      for (const device of devices) {
-        this.addDevice(device);
-      }
-    } else { // TODO this is placeholder code until I use real persistence
-      this.addDevice({
-        name: 'Sofa Light',
-        id: 'light-lr-sofa',
-        isOn: false,
-        commands: {
-          on: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '4542807'
-          } as MqttCommand,
-          off: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '4542804'
-          } as MqttCommand
+    this.persistence.get<Device[]>(PERSISTENCE_KEY)
+      .then((devices: Device[]) => {
+        if (devices) {
+          for (const device of devices) {
+            this.addDevice(device);
+          }
         }
       });
-      this.addDevice({
-        name: 'Bed Light',
-        id: 'light-mb-bed',
-        isOn: false,
-        commands: {
-          on: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '5313877'
-          } as MqttCommand,
-          off: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '5313876'
-          } as MqttCommand
-        }
-      });
-      this.addDevice({
-        name: 'Desk Light',
-        id: 'light-mb-desk',
-        isOn: false,
-        commands: {
-          on: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '4539735'
-          } as MqttCommand,
-          off: {
-            type: CommandTypes.MQTT,
-            topic: '/RF_Bridge_in/',
-            message: '4539732'
-          } as MqttCommand
-        }
-      });
-    }
   }
 
   public getDevices(): Device[] {
@@ -129,8 +77,6 @@ export class DeviceService {
   private addDevice(device: Device): void {
     this.devicesById[device.id] = device;
     this.devicesByName[device.name.toLowerCase()] = device;
-
-    this.persistDevices();
   }
 
   private persistDevices(): void {

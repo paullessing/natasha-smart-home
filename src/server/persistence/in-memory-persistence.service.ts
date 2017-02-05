@@ -1,29 +1,22 @@
-import {interfaces} from 'inversify';
-
-import {Persistence, PERSISTENCE} from './persistence-service.interface';
-import {Bindings, Service} from '../../util';
+import {Persistence} from './persistence-service.interface';
+import {Service} from '../../util';
 
 @Service()
 export class InMemoryPersistence implements Persistence {
   private data: { [key: string]: any } = {};
 
-  public get<T>(key: string): T {
-    return this.data[key] as T;
+  public get<T>(key: string): Promise<T | null> {
+    return Promise.resolve(this.data[key] as T || null);
   }
 
-  public put<T>(key: string, value: T): T {
+  public put<T>(key: string, value: T): Promise<T> {
     this.data[key] = value;
-    return value;
+    return Promise.resolve(value);
   }
 
-  public del(key: string): void {
+  public del(key: string): Promise<void> {
     this.data[key] = null;
+    return Promise.resolve();
   }
 }
 
-@Bindings()
-export class PersistenceBindings {
-  public static $bind(bind: interfaces.Bind): void {
-    bind(PERSISTENCE).to(InMemoryPersistence).inSingletonScope();
-  }
-}
