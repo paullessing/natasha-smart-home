@@ -54,6 +54,40 @@ export class DeviceService {
           } as MqttCommand
         }
       });
+      this.addDevice({
+        name: 'Bed Light',
+        id: 'light-mb-bed',
+        isOn: false,
+        commands: {
+          on: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '5313877'
+          } as MqttCommand,
+          off: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '5313876'
+          } as MqttCommand
+        }
+      });
+      this.addDevice({
+        name: 'Desk Light',
+        id: 'light-mb-desk',
+        isOn: false,
+        commands: {
+          on: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '4539735'
+          } as MqttCommand,
+          off: {
+            type: CommandTypes.MQTT,
+            topic: '/RF_Bridge_in/',
+            message: '4539732'
+          } as MqttCommand
+        }
+      });
     }
   }
 
@@ -71,6 +105,7 @@ export class DeviceService {
 
   public setState(deviceId: DeviceId, turnOn: boolean): Device {
     const device = this.getDeviceOrThrow(deviceId);
+    this.commService.turnDeviceOnOrOff(device, turnOn); // Send that command anyway in case it's out of sync
 
     if (turnOn === device.isOn) {
       return device;
@@ -79,7 +114,6 @@ export class DeviceService {
     device.isOn = turnOn;
     console.log('2 Turned on', turnOn);
     this.persistDevices();
-    this.commService.turnDeviceOnOrOff(device, turnOn);
 
     return device;
   }

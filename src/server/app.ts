@@ -16,6 +16,8 @@ container.get(CommunicationService).connect();
 app.use(morgan('dev'));
 
 app.use('/api', router);
+app.get('/', (req, res) => { res.send('Online').end(); });
+app.get('*', (req, res) => { res.status(404).end(); });
 
 export {
   app
