@@ -1,5 +1,6 @@
 import * as express from 'express';
 import {BodyParsed, Post, Response} from 'express-router-decorators';
+import * as log from 'winston';
 
 import {Service} from '../../util';
 import {DeviceService} from '../devices';
@@ -23,13 +24,6 @@ export class AlexaCustomSkillRouter {
   @Authenticated()
   @Post('/')
   public postRequest(req: express.Request): Promise<Response> {
-    // console.log('Alexa\n======');
-    // console.log(req.method);
-    // console.log('======');
-    // Object.keys(req.headers).forEach(header => console.log(`${header} : ${req.headers[header]}`));
-    // console.log('======');
-    // console.log(req.body);
-
     if (req.body && req.body.request && req.body.request.type === 'IntentRequest' && req.body.request.intent) {
       const intent: Intent<{ item: Slot }> = req.body.request.intent;
 
@@ -37,7 +31,7 @@ export class AlexaCustomSkillRouter {
       const item = slots.item && slots.item.value || 'thing';
 
       const response = this.selectResponse(intent.name, item);
-      console.log('Response', response);
+      log.debug('Response', response);
 
       return Response.resolve(response);
     } else {
@@ -54,7 +48,7 @@ export class AlexaCustomSkillRouter {
       case 'TurnThingOff':
         return this.handleToggleRequest(itemName, DeviceState.OFF);
       default:
-        console.error('Unknown intent:', intentName);
+        log.error('Unknown intent:', intentName);
         return this.alexaService.createPlainSpeechResponse(`I'm sorry Dave, I'm afraid I can't do that.`);
     }
   }
@@ -70,7 +64,7 @@ export class AlexaCustomSkillRouter {
 
   private handleToggleRequest(itemName: string, targetState: DeviceState): CustomSkillResponse {
     const turnOn = (targetState === DeviceState.ON);
-    console.log('Device name', itemName);
+    log.debug('Device name', itemName);
     const device = this.deviceService.getDeviceByName(itemName);
     if (!device) {
       return this.alexaService.createPlainSpeechResponse('Device not found.');

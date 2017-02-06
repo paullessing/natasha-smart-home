@@ -1,5 +1,6 @@
 import * as express from 'express';
 import {Get, Response, Post} from 'express-router-decorators';
+import * as log from 'winston';
 
 import {Service} from '../../util';
 import {Device, DeviceService, DeviceNotFoundError} from '../devices';
@@ -37,7 +38,7 @@ export class DeviceRouter {
   }
 
   private handleDeviceNotExistsError(err: any): Promise<Response> {
-    console.log('Error', err);
+    log.error('Error', err);
     if (err instanceof DeviceNotFoundError) {
       const deviceId = (err as DeviceNotFoundError).deviceId;
       return Response.resolve(404, `Device does not exist: ${deviceId}`);

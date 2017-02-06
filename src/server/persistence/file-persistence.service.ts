@@ -1,4 +1,5 @@
 import * as storage from 'node-persist';
+import * as log from 'winston';
 
 import {Service} from '../../util';
 import {Persistence} from './persistence-service.interface';
@@ -12,7 +13,7 @@ export class FilePersistence implements Persistence {
     this.init = Promise.resolve(storage.init({
       dir: 'persistence'
     })).then(() => {
-      console.log('Persistence initialised');
+      log.info('Persistence initialised');
     });
   }
 

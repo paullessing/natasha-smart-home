@@ -1,4 +1,5 @@
 import * as mqtt from 'mqtt';
+import * as log from 'winston';
 
 import {Service} from '../../util';
 import {Device} from '../devices/device.interface';
@@ -15,27 +16,24 @@ export class CommunicationService {
   public connect(): void {
     const client = mqtt.connect('tcp://mqtt-server.home');
     client.on('connect', () => {
-      console.log('Connected');
+      log.debug('MQTT Connected');
       client.subscribe('/#');
       this.client = client;
     });
 
     client.on('error', (err) => {
-      console.error('Error', err);
+      log.error('MQTT Error', err);
     });
 
     client.on('message', (topic, message) => {
-      console.log('Topic', topic);
-      console.log('Message', message.toString());
+      log.debug('MQTT:', topic, message.toString());
     });
   }
 
   public turnDeviceOnOrOff(device: Device, turnOn: boolean) {
     if (turnOn) {
-      console.log('3 Executing on');
       this.executeCommand(device.commands.on);
     } else {
-      console.log('3 Executing off');
       this.executeCommand(device.commands.off);
     }
   }

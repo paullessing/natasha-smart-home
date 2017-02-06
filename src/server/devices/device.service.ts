@@ -1,4 +1,5 @@
 import {inject} from 'inversify';
+import * as log from 'winston';
 
 import {Service, CustomError} from '../../util';
 import {Persistence, PERSISTENCE} from '../persistence';
@@ -15,7 +16,8 @@ interface DeviceMap {
   [key: string]: Device;
 }
 
-const PERSISTENCE_KEY = 'devices';
+const PERSISTENCE_KEY_LIST = 'deviceIds';
+const PERSISTENCE_KEY_PREFIX = 'device--';
 
 @Service()
 export class DeviceService {
@@ -23,20 +25,14 @@ export class DeviceService {
   private devicesByName: DeviceMap;
 
   constructor(
-    @inject(PERSISTENCE) private persistence: Persistence,
+    @inject(PERSISTENCE) private storage: Persistence,
     private commService: CommunicationService
   ) {
     this.devicesById = {};
     this.devicesByName = {};
 
-    this.persistence.get<Device[]>(PERSISTENCE_KEY)
-      .then((devices: Device[]) => {
-        if (devices) {
-          for (const device of devices) {
-            this.addDevice(device);
-          }
-        }
-      });
+    this.loadDevices(); // This is async; we're hoping that no calls to this class are made before it's finished loading.
+    // TODO Inversify has a loading mechanism for this but I need to investigate.
   }
 
   public getDevices(): Device[] {
@@ -60,10 +56,30 @@ export class DeviceService {
     }
 
     device.isOn = turnOn;
-    console.log('2 Turned on', turnOn);
-    this.persistDevices();
+    this.persist(device);
 
     return device;
+  }
+
+  private loadDevices(): void {
+    this.storage.get<DeviceId[]>(PERSISTENCE_KEY_LIST)
+      .then((deviceIds: DeviceId[]) => {
+        if (!deviceIds) {
+          return;
+        }
+        return Promise.all(deviceIds
+          .map((id: DeviceId) => this.storage.get(PERSISTENCE_KEY_PREFIX + id).then((device: Device) => {
+            if (!device) {
+              log.error(`Device not found: ${id}`);
+            }
+            return device;
+          }))
+        ).then((devices: Device[]) => {
+          devices
+            .filter((device: Device) => !!device)
+            .forEach((device: Device) => this.addDevice(device));
+        });
+      });
   }
 
   private getDeviceOrThrow(deviceId: DeviceId): Device {
@@ -79,7 +95,7 @@ export class DeviceService {
     this.devicesByName[device.name.toLowerCase()] = device;
   }
 
-  private persistDevices(): void {
-    this.persistence.put(PERSISTENCE_KEY, this.getDevices());
+  private persist(device: Device): void {
+    this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device);
   }
 }

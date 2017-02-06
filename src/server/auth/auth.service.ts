@@ -2,6 +2,7 @@ import * as express from 'express';
 import {AuthenticatedWith} from 'express-router-decorators';
 import {interfaces} from 'inversify';
 import * as jwt from 'jsonwebtoken';
+import * as log from 'winston';
 
 import {Bindings} from '../../util';
 
@@ -49,7 +50,7 @@ export class AuthService {
       }
       return true;
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return false;
     }
   }

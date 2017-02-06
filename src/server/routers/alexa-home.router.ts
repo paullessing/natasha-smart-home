@@ -1,5 +1,7 @@
 import * as express from 'express';
 import {BodyParsed, Post, Response} from 'express-router-decorators';
+import * as log from 'winston';
+
 import {Service} from '../../util';
 import {Authenticated} from '../auth';
 import {DeviceService, DeviceNotFoundError} from '../devices';
@@ -47,27 +49,26 @@ export class AlexaHomeSkillRouter {
   private handleControl(request: Request): Promise<SkillResponse> {
     // TODO move to service, this is too much logic for a router
     return Promise.resolve().then(() => {
-      console.log('Control', request);
+      log.debug('Control', request);
       if (request.header.name === RequestNames.TURN_ON || request.header.name === RequestNames.TURN_OFF) {
         const turnOnOffReq = request as TurnOnOffRequest;
         const deviceId = turnOnOffReq.payload.appliance.applianceId;
 
         try {
           const turnOn = request.header.name === RequestNames.TURN_ON;
-          console.log('1 Turning on');
           this.deviceService.setState(deviceId, turnOn);
           return this.alexaService.createSuccessResponse(turnOn ? ResponseNames.TURN_ON_CONFIRMATION : ResponseNames.TURN_OFF_CONFIRMATION);
         } catch (err) {
           if (err instanceof DeviceNotFoundError) {
-            console.log('Device not found');
+            log.warn('Device not found', deviceId);
             return this.alexaService.createErrorResponse(ErrorResponseNames.UNSUPPORTED_TARGET);
           } else {
-            console.error(err);
+            log.error(err);
             return this.alexaService.createErrorResponse(ErrorResponseNames.DRIVER_INTERNAL);
           }
         }
       }
-      console.log('Unexpected command');
+      log.warn('Unexpected command', request.header.name);
       return this.alexaService.createErrorResponse(ErrorResponseNames.UNSUPPORTED_OPERATION);
     });
   }
