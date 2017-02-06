@@ -1,9 +1,15 @@
 import * as express from 'express';
-import {Get, Response, Post} from 'express-router-decorators';
+import {Get, Response, Post, Put, BodyParsed} from 'express-router-decorators';
 import * as log from 'winston';
-
 import {Service} from '../../util';
-import {Device, DeviceService, DeviceNotFoundError} from '../devices';
+import {
+  Device,
+  DeviceService,
+  DeviceNotFoundError,
+  DeviceUpdateResult,
+  DeviceUpdateType,
+  DeviceValidationError
+} from '../devices';
 
 @Service()
 export class DeviceRouter {
@@ -22,6 +28,23 @@ export class DeviceRouter {
     return Promise.resolve(this.deviceService.getDevice(req.params['deviceId']))
       .then((device: Device) => Response.success(device))
       .catch((err: any) => this.handleDeviceNotExistsError(err));
+  }
+
+  @Put('/:deviceId')
+  @BodyParsed()
+  //@Authenticated()
+  public putDevice(req: express.Request): Promise<Response> {
+    return Promise.resolve(this.deviceService.createOrUpdateDevice(req.params['deviceId'], req.body))
+      .then((result: DeviceUpdateResult) => {
+        const responseCode = result.type === DeviceUpdateType.CREATED ? 201 : 200;
+        return Response.success(responseCode, result.device);
+      })
+      .catch((error: DeviceValidationError) => {
+        if (error instanceof DeviceValidationError) {
+          return Response.error(409, error.message);
+        }
+        throw error; // Rethrow, let the 500 handler deal with it
+      });
   }
 
   @Post('/:deviceId/toggle')

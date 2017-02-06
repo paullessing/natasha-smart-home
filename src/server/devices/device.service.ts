@@ -7,9 +7,25 @@ import {CommunicationService} from '../communication';
 import {Device, DeviceId} from './device.interface';
 
 export class DeviceNotFoundError extends CustomError {
-  constructor(public deviceId: string) {
+  constructor(public deviceId: DeviceId) {
     super(`Device ${deviceId} not found`);
   }
+}
+
+export class DeviceValidationError extends CustomError {
+  constructor(public deviceId: DeviceId, public message: string) {
+    super(`Cannot persist device ${deviceId}: ${message}`);
+  }
+}
+
+export enum DeviceUpdateType {
+  CREATED,
+  UPDATED
+}
+
+export interface DeviceUpdateResult {
+  type: DeviceUpdateType;
+  device: Device;
 }
 
 interface DeviceMap {
@@ -45,6 +61,45 @@ export class DeviceService {
 
   public getDeviceByName(deviceName: string): Device | null {
     return this.devicesByName[deviceName.toLowerCase()] || null;
+  }
+
+  public createOrUpdateDevice(deviceId: string, device: Device): Promise<DeviceUpdateResult> {
+    return Promise.resolve()
+      .then(() => {
+        if (!device.name) {
+          throw new DeviceValidationError(deviceId, 'Missing field: name');
+        }
+        if (!device.commands) {
+          throw new DeviceValidationError(deviceId, 'Missing field: commands');
+        }
+        if (Object.keys(device.commands).length === 0) {
+          throw new DeviceValidationError(deviceId, 'Device must have commands');
+        }
+      })
+      .then(() => this.getDevice(deviceId))
+      .then((existingDevice: Device) => {
+        const isCreate = !existingDevice;
+        const newDevice = {
+          name: device.name,
+          id: deviceId,
+          isOn: (isCreate ? device.isOn : existingDevice.isOn) || false,
+          location: device.location,
+          commands: {
+            on: device.commands.on || undefined,
+            off: device.commands.on || undefined,
+            toggle: device.commands.on || undefined
+          }
+        };
+
+        return this.persist(newDevice)
+          .then((persistedDevice: Device) => {
+            this.addDevice(persistedDevice);
+            return {
+              type: isCreate ? DeviceUpdateType.CREATED : DeviceUpdateType.UPDATED,
+              device: persistedDevice
+            };
+          });
+      });
   }
 
   public setState(deviceId: DeviceId, turnOn: boolean): Device {
@@ -95,7 +150,7 @@ export class DeviceService {
     this.devicesByName[device.name.toLowerCase()] = device;
   }
 
-  private persist(device: Device): void {
-    this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device);
+  private persist(device: Device): Promise<Device> {
+    return this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device);
   }
 }
