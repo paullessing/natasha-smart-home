@@ -1,7 +1,9 @@
 import * as express from 'express';
 import {createRouter} from 'express-router-decorators';
 import * as morgan from 'morgan';
+import * as path from 'path';
 import * as winston from 'winston';
+import * as fallback from 'express-history-api-fallback';
 
 import {Dependencies} from '../util';
 import {ApiRouter} from './routers';
@@ -17,8 +19,11 @@ container.get(CommunicationService).connect();
 app.use(morgan('dev'));
 
 app.use('/api', router);
-app.get('/', (req, res) => { res.send('Online').end(); });
-app.get('*', (req, res) => { res.status(404).end(); });
+app.use('/api/*', (req, res) => res.send(404).end());
+
+const angularAppPath = path.join(__dirname, '../web');
+app.use('/', express.static(angularAppPath));
+app.use(fallback('index.html', { root: angularAppPath }));
 
 export {
   app

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "es6",
+    "module": "commonjs",
     "target": "es6",
     "noImplicitAny": false,
     "sourceMap": true,
@@ -9,10 +9,11 @@
     "types": ["reflect-metadata"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictNullChecks": true,
-    "lib": ["es6", "dom"]
+    "strictNullChecks": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/home-skill",
+    "src/web"
   ]
 }
