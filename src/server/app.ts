@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as express from 'express';
 import {createRouter} from 'express-router-decorators';
 import * as morgan from 'morgan';
@@ -18,7 +19,9 @@ container.get(CommunicationService).connect();
 
 app.use(morgan('dev'));
 
-app.use('/api', router);
+app.use('/api', cors({
+  origin: ['http://localhost:4200', 'home.paullessing.com']
+}), router);
 app.use('/api/*', (req, res) => res.send(404).end());
 
 const angularAppPath = path.join(__dirname, '../web');

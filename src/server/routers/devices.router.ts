@@ -48,6 +48,7 @@ export class DeviceRouter {
   }
 
   @Post('/:deviceId/toggle')
+  //@Authenticated()
   public toggleDevice(req: express.Request): Promise<Response> {
     return Promise.resolve()
       .then(() => {

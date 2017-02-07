@@ -66,6 +66,9 @@ export class DeviceService {
   public createOrUpdateDevice(deviceId: string, device: Device): Promise<DeviceUpdateResult> {
     return Promise.resolve()
       .then(() => {
+        if (deviceId !== device.id) {
+          throw new DeviceValidationError(deviceId, 'Device ID does not match');
+        }
         if (!device.name) {
           throw new DeviceValidationError(deviceId, 'Missing field: name');
         }
@@ -86,8 +89,8 @@ export class DeviceService {
           location: device.location,
           commands: {
             on: device.commands.on || undefined,
-            off: device.commands.on || undefined,
-            toggle: device.commands.on || undefined
+            off: device.commands.off || undefined,
+            toggle: device.commands.toggle || undefined
           }
         };
 
