@@ -1,15 +1,18 @@
 <p *ngIf="!devices">Loading devices...</p>
-<ul *ngIf="devices">
+<ul
+  class="device-list"
+  *ngIf="devices"
+>
   <li
+    class="device-list__item-wrapper"
     *ngFor="let device of devices"
   >
-    <span>{{ device.name }}</span>
-    <span>{{ device.isOn ? 'on' : 'off' }}</span>
-    <span>
-      <a
-        (click)="toggle(device)"
-        href="javascript:void(0)"
-      >Toggle</a>
-    </span>
+    <div
+      class="device-list__item"
+      [class.device-list__item--on]="device.isOn"
+      (click)="toggle(device)"
+    >
+      <span>{{ device.name }}</span>
+    </div>
   </li>
 </ul>
