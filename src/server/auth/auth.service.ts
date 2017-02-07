@@ -5,27 +5,8 @@ import * as jwt from 'jsonwebtoken';
 import * as log from 'winston';
 
 import {Bindings} from '../../util';
-
-const certificate = `
------BEGIN CERTIFICATE-----
-MIIC+DCCAeCgAwIBAgIJersE4Mj1cLyNMA0GCSqGSIb3DQEBBQUAMCMxITAfBgNV
-BAMTGHBhdWxsZXNzaW5nLmV1LmF1dGgwLmNvbTAeFw0xNjA0MTkwOTA0MTJaFw0y
-OTEyMjcwOTA0MTJaMCMxITAfBgNVBAMTGHBhdWxsZXNzaW5nLmV1LmF1dGgwLmNv
-bTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALENS6v22OuyyeDyNrXo
-m2SdpnhcbpZUeoikVi4cu4Brt17FXwMBiFZcnd2bvyhBESBKQ2Dw/67n696tP9Nr
-ApwbsPfOisrNw0ZVg4BIuc/KdYCXEZKdxznxXJMmCa2Rb7IsnMZMN6SnjRUgRmiP
-2WKFGCvSW5fQWPnB9Y+CL0En9+7XRnWKLRhwN9JufeWhiXUvIelDWnZDUvn1elBk
-obTswx67/2DPExFW89kISPUd01Wglc2Csvk8YJud83Xx+udo0blwbULZsWMHmUp9
-T8I+GWgtqPMnCeAhhkCfGOwHIvp7QMEKwMnOPBHSMHfl7ZUdIewLAOkNpgQiLch5
-IgsCAwEAAaMvMC0wDAYDVR0TBAUwAwEB/zAdBgNVHQ4EFgQUS+sYckVRL3eYqhkc
-9TbmJLLeqeAwDQYJKoZIhvcNAQEFBQADggEBAAJbWeGPv218Mz61ODGA2QpiosGE
-pdkL5cDHmT8/uIpuEWcqmAmtDMPbN3tDMebVPeDiNi0/tRdFcRfLBr5RbfBBSKcL
-HuprIFHz2I/uenJlnoV3o6WGceykgiXlFYZ1/gmJ2R5KwEoLJltKTfy6yBc7UyA3
-xQsRonLa0BDx+VthcUoUpNcLKU5Q2vOj1YdFI6dfH4XMCYFAJITDYU6R7qjGGTbx
-z6m+GEwiEdYI1fHqgfzrDzGQoDVXICZQ1xsLB+vvFxEEwRDofmqAmF3h68a49WME
-RFJa9K591sX2xouhsXqACkfzNEB3hkTCIcXx7ROaLyU1jG0/oSvY1ZFusSg=
------END CERTIFICATE-----
-`;
+import * as certificates from './certificates';
+import Certificate = certificates.Certificate;
 
 @Bindings()
 export class AuthService {
@@ -42,10 +23,10 @@ export class AuthService {
     bind(AuthService).toConstantValue(AuthService.getInstance());
   }
 
-  public verifyToken(token: string): boolean {
+  public verifyToken(token: string, certificate: Certificate): boolean {
     try {
       const tokenData = jwt.verify(token, certificate);
-      if (tokenData.iss !== 'https://paullessing.eu.auth0.com/' || tokenData.aud !== 'natasha') {
+      if (tokenData.iss !== 'https://paullessing.eu.auth0.com/' || tokenData.aud !== 'natasha') { // TODO this will fail when I add public certs
         throw new Error('Invalid token data ' + JSON.stringify(tokenData));
       }
       return true;
@@ -55,12 +36,12 @@ export class AuthService {
     }
   }
 
-  public isRequestAuthenticated(req: express.Request): boolean {
+  public isRequestAuthenticated(req: express.Request, certificate: Certificate): boolean {
     const token = this.getTokenFromRequest(req);
     if (!token) {
       return false;
     }
-    return this.verifyToken(token);
+    return this.verifyToken(token, certificate);
   }
 
   private getTokenFromRequest(req: express.Request): string | null {
@@ -82,6 +63,6 @@ export class AuthService {
 
 export function Authenticated(): MethodDecorator & PropertyDecorator {
   return AuthenticatedWith((req: express.Request) => {
-    return AuthService.getInstance().isRequestAuthenticated(req);
+    return AuthService.getInstance().isRequestAuthenticated(req, certificates.NON_INTERACTIVE_CLIENT);
   });
 }
