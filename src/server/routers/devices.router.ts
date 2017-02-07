@@ -53,7 +53,7 @@ export class DeviceRouter {
   public toggleDevice(req: express.Request): Promise<Response> {
     return Promise.resolve()
       .then(() => {
-        return this.deviceService.getDevice(req.params['deviceId']);
+        return this.deviceService.getDeviceOrThrow(req.params['deviceId']);
       })
       .then((device: Device) => {
         return this.deviceService.setState(device.id, !device.isOn);

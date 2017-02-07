@@ -31,6 +31,9 @@ export class CommunicationService {
   }
 
   public turnDeviceOnOrOff(device: Device, turnOn: boolean) {
+    if (!this.client) {
+      throw new Error('Client could not connect to MQTT server');
+    }
     if (turnOn) {
       this.executeCommand(device.commands.on);
     } else {
@@ -41,6 +44,9 @@ export class CommunicationService {
   private executeCommand(command?: Command): void {
     if (!command || command.type !== CommandTypes.MQTT) {
       return;
+    }
+    if (!this.client) {
+      throw new Error('Client could not connect to MQTT server');
     }
     const mqttCommand = command as MqttCommand;
     this.client.publish(mqttCommand.topic, mqttCommand.message);

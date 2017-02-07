@@ -20,7 +20,7 @@ container.get(CommunicationService).connect();
 app.use(morgan('dev'));
 
 app.use('/api', cors({
-  origin: ['http://localhost:4200', 'home.paullessing.com']
+  origin: ['http://localhost:9000', 'home.paullessing.com']
 }), router);
 app.use('/api/*', (req, res) => res.send(404).end());
 

@@ -56,7 +56,7 @@ export class DeviceService {
   }
 
   public getDevice(deviceId: string): Device | null {
-    return this.devicesById[deviceId] || null;
+    return this.devicesById[deviceId];
   }
 
   public getDeviceByName(deviceName: string): Device | null {
@@ -67,7 +67,7 @@ export class DeviceService {
     return Promise.resolve()
       .then(() => {
         if (deviceId !== device.id) {
-          throw new DeviceValidationError(deviceId, 'Device ID does not match');
+          throw new DeviceValidationError(deviceId, 'Device ID does not match ' + deviceId + ' ' + device.id);
         }
         if (!device.name) {
           throw new DeviceValidationError(deviceId, 'Missing field: name');
@@ -140,7 +140,7 @@ export class DeviceService {
       });
   }
 
-  private getDeviceOrThrow(deviceId: DeviceId): Device {
+  public getDeviceOrThrow(deviceId: DeviceId): Device {
     const device = this.getDevice(deviceId);
     if (!device) {
       throw new DeviceNotFoundError(deviceId);
@@ -154,6 +154,8 @@ export class DeviceService {
   }
 
   private persist(device: Device): Promise<Device> {
-    return this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device);
+    return this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device)
+      .then(() => this.storage.put(PERSISTENCE_KEY_LIST, Object.keys(this.devicesById)))
+      .then(() => device);
   }
 }
