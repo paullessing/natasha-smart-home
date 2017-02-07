@@ -6,3 +6,7 @@
 export const environment = {
   production: false
 };
+
+export const config = {
+  apiHost: 'http://localhost:8080'
+};
