@@ -1,6 +1,7 @@
 import * as express from 'express';
 import {Get, Response, Post, Put, BodyParsed} from 'express-router-decorators';
 import * as log from 'winston';
+
 import {Service} from '../../util';
 import {
   Device,
