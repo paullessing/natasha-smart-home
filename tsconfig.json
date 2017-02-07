@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "es6",
     "target": "es6",
     "noImplicitAny": false,
     "sourceMap": true,
@@ -9,7 +9,8 @@
     "types": ["reflect-metadata"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "lib": ["es6", "dom"]
   },
   "exclude": [
     "node_modules"

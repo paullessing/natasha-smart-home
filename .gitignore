@@ -17,3 +17,4 @@ typings/*
 npm-debug.log
 npm-debug.log*
 yarn-error.log
+/.sass-cache
