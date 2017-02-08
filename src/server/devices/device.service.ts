@@ -37,6 +37,7 @@ const PERSISTENCE_KEY_PREFIX = 'device--';
 
 @Service()
 export class DeviceService {
+  private devices: Device[];
   private devicesById: DeviceMap;
   private devicesByName: DeviceMap;
 
@@ -44,6 +45,7 @@ export class DeviceService {
     @inject(PERSISTENCE) private storage: Persistence,
     private commService: CommunicationService
   ) {
+    this.devices = [];
     this.devicesById = {};
     this.devicesByName = {};
 
@@ -52,7 +54,7 @@ export class DeviceService {
   }
 
   public getDevices(): Device[] {
-    return Object.keys(this.devicesById).map(key => this.devicesById[key]);
+    return this.devices.slice();
   }
 
   public getDevice(deviceId: string): Device | null {
@@ -63,28 +65,15 @@ export class DeviceService {
     return this.devicesByName[deviceName.toLowerCase()] || null;
   }
 
-  public createOrUpdateDevice(deviceId: string, device: Device): Promise<DeviceUpdateResult> {
+  public createOrUpdateDevice(id: DeviceId, device: Device): Promise<DeviceUpdateResult> {
     return Promise.resolve()
-      .then(() => {
-        if (deviceId !== device.id) {
-          throw new DeviceValidationError(deviceId, 'Device ID does not match ' + deviceId + ' ' + device.id);
-        }
-        if (!device.name) {
-          throw new DeviceValidationError(deviceId, 'Missing field: name');
-        }
-        if (!device.commands) {
-          throw new DeviceValidationError(deviceId, 'Missing field: commands');
-        }
-        if (Object.keys(device.commands).length === 0) {
-          throw new DeviceValidationError(deviceId, 'Device must have commands');
-        }
-      })
-      .then(() => this.getDevice(deviceId))
+      .then(() => this.validateNewDevice(id, device))
+      .then(() => this.getDevice(id))
       .then((existingDevice: Device) => {
         const isCreate = !existingDevice;
         const newDevice = {
           name: device.name,
-          id: deviceId,
+          id: id,
           isOn: (isCreate ? device.isOn : existingDevice.isOn) || false,
           location: device.location,
           commands: {
@@ -119,6 +108,18 @@ export class DeviceService {
     return device;
   }
 
+  public getAllLocations(): string[] {
+    const locations: string[] = [];
+    const usedLocations = {};
+    this.devices.map(device => device.location).forEach(location => {
+      if (!usedLocations[location]) {
+        locations.push(location);
+        usedLocations[location] = true;
+      }
+    });
+    return locations;
+  }
+
   private loadDevices(): void {
     this.storage.get<DeviceId[]>(PERSISTENCE_KEY_LIST)
       .then((deviceIds: DeviceId[]) => {
@@ -149,6 +150,7 @@ export class DeviceService {
   }
 
   private addDevice(device: Device): void {
+    this.devices.push(device);
     this.devicesById[device.id] = device;
     this.devicesByName[device.name.toLowerCase()] = device;
   }
@@ -157,5 +159,23 @@ export class DeviceService {
     return this.storage.put(PERSISTENCE_KEY_PREFIX + device.id, device)
       .then(() => this.storage.put(PERSISTENCE_KEY_LIST, Object.keys(this.devicesById)))
       .then(() => device);
+  }
+
+  private validateNewDevice(id: DeviceId, device: Device): void {
+    if (id !== device.id) {
+      throw new DeviceValidationError(id, 'Device ID does not match ' + id + ' ' + device.id);
+    }
+    if (!device.name) {
+      throw new DeviceValidationError(id, 'Missing field: name');
+    }
+    if (!device.commands) {
+      throw new DeviceValidationError(id, 'Missing field: commands');
+    }
+    if (!device.location) {
+      throw new DeviceValidationError(id, 'Missing field: location');
+    }
+    if (Object.keys(device.commands).length === 0) {
+      throw new DeviceValidationError(id, 'Device must have commands');
+    }
   }
 }

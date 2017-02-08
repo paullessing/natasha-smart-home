@@ -62,6 +62,14 @@ export class DeviceRouter {
       .catch((err: any) => this.handleDeviceNotExistsError(err));
   }
 
+  @Get('/locations/all')
+  //@Authenticated()
+  public getAllLocations(): Promise<Response> {
+    return Promise.resolve()
+      .then(() => this.deviceService.getAllLocations())
+      .then((locations) => Response.success(locations));
+  }
+
   private handleDeviceNotExistsError(err: any): Promise<Response> {
     log.error('Error', err);
     if (err instanceof DeviceNotFoundError) {

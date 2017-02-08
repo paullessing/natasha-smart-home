@@ -6,7 +6,7 @@ export interface Device {
   name: string;
   id: DeviceId;
   isOn: boolean;
-  location?: string;
+  location: string;
   commands: {
     on?: Command;
     off?: Command;
