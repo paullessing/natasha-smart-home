@@ -4,10 +4,14 @@
   "description": "NATurally Awesome System for Home Automation",
   "main": "dist/server/app.js",
   "scripts": {
-    "build": "node node_modules/typescript/bin/tsc",
+    "clean": "node node_modules/del-cli/cli dist",
+    "build": "npm run clean && npm run build-ts && npm run build-ng",
+    "build-ts": "node node_modules/typescript/bin/tsc",
+    "build-ng": "node node_modules/@angular/cli/bin/ng build",
     "build-watch": "node node_modules/typescript/bin/tsc -w",
-    "serve": "node node_modules/concurrently/src/main --kill-others --prefix \"[{name}]\" --names \"tsc ,node,cli \" --prefix-colors \"blue,magenta,green\" \"npm run build-watch\" \"npm run nodemon\" \"ng serve --port 9000\"",
-    "nodemon": "node node_modules/nodemon/bin/nodemon dist/server/server.js --log=debug"
+    "serve": "node node_modules/concurrently/src/main --kill-others --prefix \"[{name}]\" --names \"tsc ,node\" --prefix-colors \"blue,magenta\" \"npm run build-watch\" \"npm run nodemon\"",
+    "nodemon": "node node_modules/nodemon/bin/nodemon dist/server/server.js --log=debug",
+    "start": "node dist/server/server --log=info"
   },
   "author": "Paul Lessing <paul@paullessing.com>",
   "license": "MIT",
@@ -69,6 +73,7 @@
     "chai": "^3.5.0",
     "codelyzer": "~2.0.0-beta.1",
     "concurrently": "^3.1.0",
+    "del-cli": "^0.2.1",
     "express-router-decorators": "paullessing/express-router-decorators",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0",
