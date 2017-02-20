@@ -14,7 +14,7 @@ export class CommunicationService {
   constructor() {}
 
   public connect(): void {
-    const client = mqtt.connect('tcp://mqtt-server.home');
+    const client = mqtt.connect('tcp://localhost');
     client.on('connect', () => {
       log.debug('MQTT Connected');
       client.subscribe('/#');

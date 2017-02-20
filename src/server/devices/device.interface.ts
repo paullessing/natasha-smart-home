@@ -4,6 +4,7 @@ export type DeviceId = string;
 
 export interface Device {
   name: string;
+  alternativeNames?: string[];
   id: DeviceId;
   isOn: boolean;
   location: string;

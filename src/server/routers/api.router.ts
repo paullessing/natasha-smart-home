@@ -3,6 +3,7 @@ import {Use, UseType, Get, Response} from 'express-router-decorators';
 import {Service} from '../../util';
 import {DeviceRouter} from './devices.router';
 import {AlexaRouter} from './alexa.router';
+import {ApplianceRouter} from './appliance.router';
 
 @Service()
 export class ApiRouter {
@@ -13,12 +14,17 @@ export class ApiRouter {
   @Use('/devices', UseType.ROUTER)
   public deviceRouter: DeviceRouter;
 
+  @Use('/appliances', UseType.ROUTER)
+  public applianceRouter: ApplianceRouter;
+
   constructor(
     alexaRouter: AlexaRouter,
-    deviceRouter: DeviceRouter
+    deviceRouter: DeviceRouter,
+    applianceRouter: ApplianceRouter
   ) {
     this.alexaRouter = alexaRouter;
     this.deviceRouter = deviceRouter;
+    this.applianceRouter = applianceRouter;
   }
 
   @Get('/health')
