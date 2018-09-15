@@ -42,7 +42,7 @@ resources:
 
 functions:
   alexa:
-    handler: handler.handler
+    handler: handler.alexa
     events:
       - alexaSkill: ${file(.secret.yml):skillId}
 
