@@ -31,5 +31,11 @@ en-GB:
             - '{Weight} grams.'
             - 'it is {Weight} grams.'
             - 'it weighs {Weight} grams.'
+        - name: SendNotificationIntent
+          slots:
+          - name: Notification
+            type: AMAZON.SearchQuery
+          samples:
+          - 'send notification {Notification}'
         - name: AMAZON.YesIntent
         - name: AMAZON.NoIntent
