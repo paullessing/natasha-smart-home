@@ -1,0 +1,64 @@
+service:
+  name: natasha
+
+plugins:
+  - serverless-webpack
+  - serverless-alexa-skills
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+
+
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+    - dynamodb:DescribeTable
+    - dynamodb:Query
+    - dynamodb:Scan
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:BatchWriteItem
+    - dynamodb:UpdateItem
+    - dynamodb:DeleteItem
+    Resource: arn:aws:dynamodb:eu-west-1:*:*
+
+resources:
+  Resources:
+    guestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}.${self:provider.stage}.weights
+        AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+functions:
+  alexa:
+    handler: handler.handler
+    events:
+      - alexaSkill: ${file(.secret.yml):skillId}
+
+custom:
+  alexa:
+    vendorId: ${file(.secret.yml):vendorId} # https://developer.amazon.com/mycid.html
+    skills:
+      - id: ${file(.secret.yml):skillId}
+        manifest:
+          publishingInformation:
+            locales:
+              en-GB:
+                name: NatASHA
+          apis:
+            custom:
+              endpoint:
+                uri: ${file(.secret.yml):lambdaArn} # e.g. arn:aws:lambda:[region]:[account-id]:function:[function-name]
+          manifestVersion: '1.0'
+        models: ${file(alexa/models.yml)}

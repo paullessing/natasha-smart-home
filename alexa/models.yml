@@ -1,0 +1,25 @@
+en-GB:
+  interactionModel:
+    languageModel:
+      invocationName: natasha
+      intents:
+        - name: StoreWeightIntent
+          slots:
+            - name: ItemName
+              type: AMAZON.SearchQuery
+            - name: Weight
+              type: AMAZON.NUMBER
+          samples:
+            - 'store weight {ItemName}'
+            - 'remember weight {ItemName}'
+            - 'store weight of {ItemName}'
+            - 'remember weight of {ItemName}'
+            - 'store weight of the {ItemName}'
+            - 'remember weight of the {ItemName}'
+            - 'store weight of a {ItemName}'
+            - 'remember weight of a {ItemName}'
+            - '{Weight} grams.'
+            - 'it is {Weight} grams.'
+            - 'it weighs {Weight} grams.'
+        - name: AMAZON.YesIntent
+        - name: AMAZON.NoIntent

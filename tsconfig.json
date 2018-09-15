@@ -1,19 +1,22 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "noImplicitAny": false,
     "sourceMap": true,
-    "rootDir": "src",
-    "outDir": "dist",
-    "types": ["reflect-metadata"],
+    "target": "es6",
+    "lib": [
+      "esnext"
+    ],
+    "moduleResolution": "node",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictNullChecks": true
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules",
-    "src/home-skill",
-    "src/web"
+    "old"
   ]
 }
