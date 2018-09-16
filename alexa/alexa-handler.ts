@@ -1,8 +1,9 @@
 import * as Ask from 'ask-sdk';
 import { HandlerInput } from 'ask-sdk';
 import { IntentRequest, Request } from 'ask-sdk-model';
-import { State } from './state';
+import { DEFAULT_STATE, State } from './state';
 import { handleBuildWeight } from './weights.handler';
+import { handleNotifications } from './notifications.handler';
 
 // TODO better dialog flow
 // TODO store data in DB
@@ -52,9 +53,18 @@ export const alexaHandler = Ask.SkillBuilders.custom()
       },
       handle: (handlerInput: HandlerInput) => {
         const intentRequest = handlerInput.requestEnvelope.request as IntentRequest;
+
+        if (intentRequest.intent.name === 'AMAZON.CancelIntent') {
+          handlerInput.attributesManager.setSessionAttributes({ state: DEFAULT_STATE });
+          return handlerInput.responseBuilder.withShouldEndSession(true).getResponse();
+        }
+
         const state = getState(handlerInput);
 
-        const result = handleBuildWeight(state, intentRequest, handlerInput);
+        const result = (
+          handleBuildWeight(state, intentRequest, handlerInput) ||
+          handleNotifications(state, intentRequest, handlerInput)
+        );
 
         if (!result) {
           throw new Error(`Unhandled intent`);

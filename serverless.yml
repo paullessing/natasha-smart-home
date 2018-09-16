@@ -29,7 +29,7 @@ resources:
     guestsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}.${self:provider.stage}.weights
+        TableName: ${self:service}.${self:provider.stage}
         AttributeDefinitions:
         - AttributeName: id
           AttributeType: S

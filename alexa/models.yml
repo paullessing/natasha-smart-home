@@ -39,3 +39,4 @@ en-GB:
           - 'send notification {Notification}'
         - name: AMAZON.YesIntent
         - name: AMAZON.NoIntent
+        - name: AMAZON.CancelIntent

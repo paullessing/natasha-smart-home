@@ -1,4 +1,4 @@
-import { BuildingWeightState, DEFAULT_STATE, isBuildingWeight, isDefault, isNotification, NotificationState, State } from './state';
+import { DEFAULT_STATE, isDefault, isNotification, NotificationState, State } from './state';
 import { HandlerInput } from 'ask-sdk';
 import { IntentRequest, Response } from 'ask-sdk-model';
 
@@ -31,8 +31,10 @@ export function handleNotifications(state: State, request: IntentRequest, handle
       case 'AMAZON.YesIntent': {
         handlerInput.attributesManager.setSessionAttributes({ state: DEFAULT_STATE });
 
+        // TODO send
+
         return handlerInput.responseBuilder
-          .speak(`Stored "${state.itemName}" as ${state.weight} grams.`)
+          .speak(`Sent.`)
           .withShouldEndSession(true)
           .getResponse();
       }
@@ -40,13 +42,13 @@ export function handleNotifications(state: State, request: IntentRequest, handle
         handlerInput.attributesManager.setSessionAttributes({ state: DEFAULT_STATE });
 
         return handlerInput.responseBuilder
-          .speak(`Okay, I did not store that.`)
+          .speak(`Okay, I did not send that.`)
           .withShouldEndSession(true)
           .getResponse();
       }
       default:
         return handlerInput.responseBuilder
-          .speak(`I did not understand that. Did you want to store "${state.itemName}" as ${state.weight} grams?`)
+          .speak(`I did not understand that. Did you want to send notification "${state.notification}"?`)
           .reprompt('Say "yes" or "no".')
           .withShouldEndSession(false)
           .getResponse();
