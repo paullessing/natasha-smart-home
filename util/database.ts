@@ -2,7 +2,6 @@ import { DynamoDB } from 'aws-sdk';
 import * as uuid from 'uuid/v4';
 import DocumentClient = DynamoDB.DocumentClient;
 import WriteRequest = DocumentClient.WriteRequest;
-import { makeResponse } from './http-helpers';
 
 const docClient = new DocumentClient();
 
@@ -97,7 +96,7 @@ export class LookupTable<T extends { id: string | number }, Lookup = any> extend
         continue;
       }
       if (match(all[entry].lookup)) {
-        results.push(this.find(all[entry].id));
+        results.push(this.find(all[entry].id) as Promise<T>);
       }
     }
 
@@ -145,14 +144,14 @@ export function getAll<T>(tableName: string): Promise<T[]> {
 
     let allItems: T[] = [];
 
-    function onScan(err, data) {
+    function onScan(err: any, data: DynamoDB.ScanOutput) {
       if (err) {
         console.error('Unable to scan the table. Error JSON:', JSON.stringify(err, null, 2));
         reject(err);
       } else {
         // print all the movies
         console.log('Scan succeeded.');
-        allItems = allItems.concat(data.Items);
+        allItems = allItems.concat(data.Items as any as T[]);
 
         // continue scanning if we have more movies, because
         // scan can retrieve a maximum of 1MB of data
@@ -218,12 +217,12 @@ export function putMulti<T>(tableName: string, items: T[], primaryKey: string = 
 
   const count = 0;
 
-  const nextBatch = (insertedItems: T[] = []) => !items.length ?
+  const nextBatch = (insertedItems: T[] = []): (T[] | Promise<T[]>) => !items.length ?
     insertedItems :
     new Promise<T[]>((resolve, reject) => {
       if (count > 100) {
         console.error('Too many iterations!');
-        throw makeResponse(500, 'Internal Server Error');
+        throw new Error('Too many iterations in putMulti()');
       }
 
       const itemsInThisBatch = items.splice(0, 25);
