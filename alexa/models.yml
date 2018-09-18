@@ -10,6 +10,8 @@ en-GB:
             - name: Weight
               type: AMAZON.NUMBER
           samples:
+            - 'store weight'
+            - 'remember a weight'
             - 'store weight {ItemName}'
             - 'remember weight {ItemName}'
             - 'store weight of {ItemName}'
@@ -40,3 +42,34 @@ en-GB:
         - name: AMAZON.YesIntent
         - name: AMAZON.NoIntent
         - name: AMAZON.CancelIntent
+    dialog:
+      intents:
+        - name: StoreWeightIntent
+          confirmationRequired: true
+          prompts:
+            confirmation: 'Confirm.Intent-StoreWeightIntent'
+          slots:
+            - name: ItemName
+              type: AMAZON.SearchQuery
+              confirmationRequired: false
+              elicitationRequired: true
+              prompts:
+                elicitation: 'Elicit.Intent-StoreWeightIntent.IntentSlot-ItemName'
+            - name: Weight
+              type: AMAZON.NUMBER
+              elicitationRequired: true
+              prompts:
+                elicitation: 'Elicit.Intent-StoreWeightIntent.IntentSlot-Weight'
+    prompts:
+      - id: Elicit.Intent-StoreWeightIntent.IntentSlot-ItemName
+        variations:
+          - type: PlainText
+            value: What is the item name?
+      - id: Elicit.Intent-StoreWeightIntent.IntentSlot-Weight
+        variations:
+          - type: PlainText
+            value: How heavy is it?
+      - id: Confirm.Intent-StoreWeightIntent
+        variations:
+          - type: PlainText
+            value: Is that right?
